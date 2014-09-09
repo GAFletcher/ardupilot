@@ -87,7 +87,24 @@ void AP_BoardLED::update(void)
         }
         return;
     }
-
+	
+	// compass calibration
+	if (AP_Notify::flags.compass_cal) {
+		if (AP_Notify::flags.compass_cal == 1) {
+			hal.gpio->write(HAL_GPIO_C_LED_PIN, HAL_GPIO_LED_OFF);
+			hal.gpio->write(HAL_GPIO_A_LED_PIN, HAL_GPIO_LED_ON);
+		}
+		if (AP_Notify::flags.compass_cal == 2) {
+			hal.gpio->write(HAL_GPIO_A_LED_PIN, HAL_GPIO_LED_OFF);
+			hal.gpio->write(HAL_GPIO_C_LED_PIN, HAL_GPIO_LED_ON);
+		}
+		if (AP_Notify::flags.compass_cal == 3) {
+			hal.gpio->write(HAL_GPIO_A_LED_PIN, HAL_GPIO_LED_OFF);
+			hal.gpio->write(HAL_GPIO_C_LED_PIN, HAL_GPIO_LED_OFF);			
+		}		
+		return;
+	}
+	
     // arming light
     static uint8_t arm_counter = 0;
 	if (AP_Notify::flags.armed) {

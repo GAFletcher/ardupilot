@@ -868,6 +868,17 @@ static void update_compass(void)
     if (g.compass_enabled && compass.read()) {
         ahrs.set_compass(&compass);
         compass.learn_offsets();
+        if(compass._learn.get() == 3 || compass.calibrate_flag == 3){            
+            compass.calibrate();
+            AP_Notify::flags.compass_cal = compass.calibrate_led;            
+        }
+        if (compass._learn.get() == 2 || compass.calibrate_flag == 2) {
+            compass.save_calibration();
+            AP_Notify::flags.compass_cal =  1;
+        }
+        if (compass._learn.get() < 2 && compass.calibrate_flag < 2) {
+            AP_Notify::flags.compass_cal = 0; 
+        }
         if (should_log(MASK_LOG_COMPASS)) {
             Log_Write_Compass();
         }
@@ -970,8 +981,10 @@ static void one_second_loop()
     update_aux();
 
     // update notify flags
-    AP_Notify::flags.pre_arm_check = arming.pre_arm_checks(false);
-    AP_Notify::flags.armed = arming.is_armed() || arming.arming_required() == AP_Arming::NO;
+    if (compass._learn.get() < 2 && compass.calibrate_flag < 2) {        
+        AP_Notify::flags.pre_arm_check = arming.pre_arm_checks(false);
+        AP_Notify::flags.armed = arming.is_armed() || arming.arming_required() == AP_Arming::NO;
+    }  
 }
 
 static void log_perf_info()

@@ -349,6 +349,11 @@ bool AP_Compass_HMC5843::read()
 	_field[0].x = _mag_x_accum * calibration[0] / _accum_count;
 	_field[0].y = _mag_y_accum * calibration[1] / _accum_count;
 	_field[0].z = _mag_z_accum * calibration[2] / _accum_count;
+	  // here i am bypassing the strap calibration
+	//_field[0].x = _mag_x_accum  / _accum_count;
+	//_field[0].y = _mag_y_accum  / _accum_count;
+	//_field[0].z = _mag_z_accum  / _accum_count;	
+	
 	_accum_count = 0;
 	_mag_x_accum = _mag_y_accum = _mag_z_accum = 0;
 
@@ -369,10 +374,14 @@ bool AP_Compass_HMC5843::read()
     if (!_external) {
         // and add in AHRS_ORIENTATION setting if not an external compass
         _field[0].rotate(_board_orientation);
-    }
-
-    _field[0] += _offset[0].get();
-
+    }	
+	// Added scale factors.
+	// Skip the offsets and scaling during calibration.
+	if(_learn.get() != 3 && calibrate_flag != 3) {	
+		_field[0] += _offset[0].get();			
+		_field[0].y *= _scale_XY[0].get();
+		_field[0].z *= _scale_XZ[0].get();			
+	}
     // apply motor compensation
     if(_motor_comp_type != AP_COMPASS_MOT_COMP_DISABLED && _thr_or_curr != 0.0f) {
         _motor_offset[0] = _motor_compensation[0].get() * _thr_or_curr;

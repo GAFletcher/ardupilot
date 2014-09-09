@@ -525,6 +525,11 @@ static bool is_flying(void)
 */
 static bool suppress_throttle(void)
 {
+    if(compass._learn.get() == 3 || compass.calibrate_flag == 3){
+        // Lock out the motors during a compass calibration
+        return true;
+    }    
+  
     if (!throttle_suppressed) {
         // we've previously met a condition for unsupressing the throttle
         return false;

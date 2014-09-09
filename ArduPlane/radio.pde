@@ -118,6 +118,29 @@ static void rudder_arm_check()
     }
 }
 
+static void compass_cal_check() 
+{
+    static uint8_t n;
+    if (g.rc_4.control_in < -4000 && g.rc_3.control_in < 5 && g.rc_1.control_in > 4000 && g.rc_2.control_in > 4000 && compass.calibrate_flag == 0) {
+      
+        n++;
+        if (n > 12) {
+            compass.calibrate_flag = 3;
+            n = 0;
+        }
+        return;
+    }
+    if (g.rc_4.control_in < -4000 && g.rc_3.control_in < 5 && g.rc_1.control_in < 4000 && g.rc_2.control_in < -4000 && compass.calibrate_flag == 3) {
+      
+        n++;
+        if (n > 12) {
+            compass.calibrate_flag = 2;
+            n = 0;
+        }
+        return;  
+    }
+    //n = 0;  
+}
 static void read_radio()
 {
     if (!hal.rcin->new_input()) {
@@ -170,6 +193,9 @@ static void read_radio()
     }
 
     rudder_arm_check();
+   // if (auto_throttle_mode && !is_flying()) {
+        compass_cal_check();
+   // }
 }
 
 static void control_failsafe(uint16_t pwm)

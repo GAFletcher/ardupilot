@@ -21,3 +21,5 @@
  *
  */
 
+# define MOUNT DISABLED
+# define CAMERA DISABLED

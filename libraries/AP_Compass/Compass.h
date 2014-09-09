@@ -71,6 +71,10 @@
 # define COMPASS_EXPECTED_DEV_ID3 0
 #endif
 
+# define COMPASS_CAL_X 0
+# define COMPASS_CAL_Y 1
+# define COMPASS_CAL_Z 2
+
 class Compass
 {
 public:
@@ -111,7 +115,9 @@ public:
     /// @param  i                   compass instance
     /// @param  offsets             Offsets to the raw mag_ values.
     ///
-    void set_and_save_offsets(uint8_t i, const Vector3f &offsets);
+    void set_and_save_offsets(uint8_t i, const Vector3f &offsets);	
+	
+    void set_and_save_calibration(uint8_t i, const Vector3f &offsets, const float &scalers_XY, const float &scalers_XZ);
 
     /// Saves the current offset x/y/z values for one or all compasses
     ///
@@ -122,6 +128,7 @@ public:
     ///
     void save_offsets(uint8_t i);
     void save_offsets(void);
+	void save_calibration(uint8_t i);
 
     // return the number of compass instances
     virtual uint8_t get_count(void) const { return 1; }
@@ -168,7 +175,18 @@ public:
     /// Perform automatic offset updates
     ///
     void learn_offsets(void);
+//GAF
+	Vector3f set_vector(float x, float y, float z, uint8_t i) {Vector3f set_vector[i+1]; set_vector[i].x = x; set_vector[i].y = y; set_vector[i].z = z; return set_vector[i];}
+	//void limit_set(float field, float *field_max, float *field_min, float delta_field);
+	void calibrate(void);
 
+	void save_calibration(void);
+
+	uint8_t calibrate_led;
+	
+	uint8_t calibrate_flag;
+	
+//GAF
     /// return true if the compass should be used for yaw calculations
     bool use_for_yaw(void) const {
         return _healthy[0] && _use_for_yaw;
@@ -260,9 +278,11 @@ protected:
 
     bool _healthy[COMPASS_MAX_INSTANCES];
     Vector3f _field[COMPASS_MAX_INSTANCES];     ///< magnetic field strength
-
+	Vector3f _last_field[COMPASS_MAX_INSTANCES]; // last mag field
     AP_Int8 _orientation;
     AP_Vector3f _offset[COMPASS_MAX_INSTANCES];
+	AP_Float _scale_XY[COMPASS_MAX_INSTANCES];
+	AP_Float _scale_XZ[COMPASS_MAX_INSTANCES];
     AP_Float _declination;
     AP_Int8 _use_for_yaw;                       ///<enable use for yaw calculation
     AP_Int8 _auto_declination;                  ///<enable automatic declination code
@@ -287,5 +307,12 @@ protected:
 
     // board orientation from AHRS
     enum Rotation _board_orientation;
+private:
+	Vector3f _field_max[COMPASS_MAX_INSTANCES];	
+	Vector3f _field_min[COMPASS_MAX_INSTANCES];
+	Vector3f _field_offset[COMPASS_MAX_INSTANCES];
+	Vector3f _field_span[COMPASS_MAX_INSTANCES];
+
+
 };
 #endif

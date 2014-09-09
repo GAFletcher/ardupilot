@@ -27,7 +27,7 @@
 void
 Compass::learn_offsets(void)
 {
-    if (_learn == 0) {
+    if (_learn != 1) {
         // auto-calibration is disabled
         return;
     }
@@ -122,3 +122,170 @@ Compass::learn_offsets(void)
         _offset[k].set(new_offsets);
     }
 }
+
+//GAF
+
+void
+Compass::calibrate(void)
+{
+	if(_learn != 3 && calibrate_flag !=3) {
+		calibrate_led = 0;
+		return;
+	}
+	calibrate_led = 3;
+	
+	for(uint8_t k=0; k<COMPASS_MAX_INSTANCES; k++) { 
+		//Vector3f _delta_field[k] = _field[k] - _last_field[k];
+		uint8_t cal_axis = 4;
+		// decide which axis has the greatest reading and calibrate that axis.
+		
+		if (fabs(_field[k].x) > fabs(_field[k].y) && fabs(_field[k].x) > fabs(_field[k].z)) {
+			//limit_set(_field[k].x, &_field_max[k].x, &_field_min[k].x, _delta_field[k].x);
+			cal_axis = 1;
+		}
+
+		if (fabs(_field[k].y) > fabs(_field[k].z) && fabs(_field[k].y) > fabs(_field[k].x)) {
+			//limit_set(_field[k].y, &_field_max[k].y, &_field_min[k].y, _delta_field[k].y);
+			cal_axis = 2;
+		}
+		
+		if (fabs(_field[k].z) > fabs(_field[k].y) && fabs(_field[k].z) > fabs(_field[k].x)) {
+			//limit_set(_field[k].z, &_field_max[k].z, &_field_min[k].z, _delta_field[k].z);
+			cal_axis = 3;
+		}
+			
+		switch (cal_axis) {
+			case 1:
+				if(_field[k].x > _field_max[k].x) {
+					_field_max[k].x = _field[k].x;
+					//if (_delta_field[k].x > 0.01) {
+					calibrate_led = 1;  // led is red
+					//}
+				}			
+				else if (_field[k].x <= _field_max[k].x && _field[k].x > 0 ) {
+					calibrate_led = 2;  // led is blue
+				}
+				//else calibrate_led = 3;
+				if(_field[k].x < _field_min[k].x) {
+					_field_min[k].x = _field[k].x;
+					//if (_delta_field[k].x < 0.01) {
+					calibrate_led = 1;  // led is red
+					//}
+				}			
+				else if (_field[k].x >= _field_min[k].x && _field[k].x < 0 ) {
+					calibrate_led = 2;  // led is blue
+				}			
+				
+				//else calibrate_led = 3; 
+			break;
+			case 2:
+				if(_field[k].y > _field_max[k].y) {
+					_field_max[k].y = _field[k].y;
+					//if (_delta_field[k].y > 0.01) {
+					calibrate_led = 1;  // led is red
+					//}
+				}
+				//else if (_field[k].y <= _field_max[k].y && _field[k].y > 0 && _delta_field[k].y < -0.2) {
+				else if (_field[k].y <= _field_max[k].y && _field[k].y > 0 ) {
+					calibrate_led = 2;  // led is blue
+				}
+				//else calibrate_led = 3;
+				if(_field[k].y < _field_min[k].y) {
+					_field_min[k].y = _field[k].y;
+					//if (_delta_field[k].y < 0.01) {
+					calibrate_led = 1;  // led is red
+					//}
+				}			
+				else if (_field[k].y >= _field_min[k].y && _field[k].y < 0 ) {
+					calibrate_led = 2;  // led is blue
+				}			
+				
+				//else calibrate_led = 3;
+			break;
+			case 3:
+				if(_field[k].z > _field_max[k].z) {
+					_field_max[k].z = _field[k].z;
+					//if (_delta_field[k].z > 0.01) {
+					calibrate_led = 1;  // led is red
+					//}
+				}
+				//else if (_field[k].z <= _field_max[k].z && _field[k].z > 0 && _delta_field[k].z < -0.2) {
+				else if (_field[k].z <= _field_max[k].z && _field[k].z > 0 ) {
+					calibrate_led = 2;  // led is blue
+				}
+				//else calibrate_led = 3;
+				if(_field[k].z < _field_min[k].z) {
+					_field_min[k].z = _field[k].z;
+					//if (_delta_field[k].z < 0.01) {
+					calibrate_led = 1;  // led is red
+					//}
+				}			
+				else if (_field[k].z >= _field_min[k].z && _field[k].z < 0 ) {
+					calibrate_led = 2;  // led is blue
+				}			
+				
+				//else calibrate_led = 3;
+			break;
+			default :
+				calibrate_led = 0;
+			break;
+		}
+			
+		//_last_field[k] = _field[k];
+	}
+}
+
+/*
+void
+Compass::limit_set(float field, float *field_max, float *field_min, float delta_field)
+{
+	if(field > *field_max) {
+		*field_max = field;
+		if (delta_field > 0.2) {
+			calibrate_led = 1;  // led is blue
+			
+		}
+	}
+	else if (field <= *field_max && field > 0 && delta_field < -0.2) {
+		calibrate_led = 1;  // led is red
+		
+	}
+	else calibrate_led = 0;
+	
+	if(field < *field_min) {
+		*field_min = field;
+		if (delta_field < -0.2) {
+			calibrate_led = 1;  //led is blue
+			
+		}
+	}
+	else if (field >= *field_min && field < 0 && delta_field > 0.2) {
+		calibrate_led = 1;  // led is red
+		
+	}
+	else calibrate_led = 0;
+}
+*/
+void
+Compass::save_calibration(void)
+{	
+	float scale_XY = 1;
+	float scale_XZ = 1;
+	
+	for(uint8_t k=0; k<COMPASS_MAX_INSTANCES; k++) {
+		// Calculate the offsets and scale fators.
+		_field_offset[k] = (_field_min[k] + _field_max[k]) / -2.0f;
+		_field_span[k] = _field_max[k] - _field_min[k];		
+		scale_XY = _field_span[k].x / _field_span[k].y; 
+		scale_XZ = _field_span[k].x / _field_span[k].z;
+		// Save the result.
+		set_and_save_calibration(k, _field_offset[k], scale_XY, scale_XZ);	
+		// Reset the vectors in case a redo of the cal is done, otherwise inly a reset of the board will zero them.
+		_field_max[k] = set_vector(0,0,0,k);
+		_field_min[k] = set_vector(0,0,0,k);
+		_field_span[k] = set_vector(1,1,1,k);
+	}
+	calibrate_flag = 0;
+	_learn.set_and_save(0);	
+}
+
