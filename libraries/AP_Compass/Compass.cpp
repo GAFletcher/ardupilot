@@ -4,19 +4,7 @@
 
 const AP_Param::GroupInfo Compass::var_info[] PROGMEM = {
 
-    // @Param: SCLR_XY
-    // @DisplayName: Compass scaler on the y axis
-    // @Description: Normalization Scaler for the compass z-axis values to compensate for metal in the frame
-    // @Range: 0.8 1.2
-    // @Increment: 0.001
-    AP_GROUPINFO("SCLR_XY",    0, Compass, _scale_XY[0], 1.0f),
-
-    // @Param: SCLR_XZ
-    // @DisplayName: Compass scaler on the z axis
-    // @Description: Normalization Scaler for the compass x-axis values to compensate for metal in the frame
-    // @Range: 0.8 1.2
-    // @Increment: 0.001	
-    AP_GROUPINFO("SCLR_XZ",    1, Compass, _scale_XZ[0], 1.0f),
+	// index 0 was used for the old orientation matrix
 	
 	// @Param: OFS_X
     // @DisplayName: Compass offsets on the X axis
@@ -35,7 +23,7 @@ const AP_Param::GroupInfo Compass::var_info[] PROGMEM = {
     // @Description: Offset to be added to the compass z-axis values to compensate for metal in the frame
     // @Range: -400 400
     // @Increment: 1
-    AP_GROUPINFO("OFS",    2, Compass, _offset[0], 0),
+    AP_GROUPINFO("OFS",    1, Compass, _offset[0], 0),
 
     // @Param: DEC
     // @DisplayName: Compass declination
@@ -44,21 +32,21 @@ const AP_Param::GroupInfo Compass::var_info[] PROGMEM = {
     // @Units: Radians
     // @Increment: 0.01
     // @User: Standard
-    AP_GROUPINFO("DEC",    3, Compass, _declination, 0),
+    AP_GROUPINFO("DEC",    2, Compass, _declination, 0),
 
     // @Param: LEARN
     // @DisplayName: Learn compass offsets automatically
     // @Description: Enable or disable the automatic learning of compass offsets
     // @Values: 0:Disabled,1:Enabled,2:Save calibration,3:Manual calibration mode
     // @User: Advanced
-    AP_GROUPINFO("LEARN",  4, Compass, _learn, 1), // true if learning calibration
+    AP_GROUPINFO("LEARN",  3, Compass, _learn, 1), // true if learning calibration
 
     // @Param: USE
     // @DisplayName: Use compass for yaw
     // @Description: Enable or disable the use of the compass (instead of the GPS) for determining heading
     // @Values: 0:Disabled,1:Enabled
     // @User: Advanced
-    AP_GROUPINFO("USE",    5, Compass, _use_for_yaw, 1), // true if used for DCM yaw
+    AP_GROUPINFO("USE",    4, Compass, _use_for_yaw, 1), // true if used for DCM yaw
 
 #if !defined( __AVR_ATmega1280__ )
     // @Param: AUTODEC
@@ -66,7 +54,7 @@ const AP_Param::GroupInfo Compass::var_info[] PROGMEM = {
     // @Description: Enable or disable the automatic calculation of the declination based on gps location
     // @Values: 0:Disabled,1:Enabled
     // @User: Advanced
-    AP_GROUPINFO("AUTODEC",    6, Compass, _auto_declination, 1),
+    AP_GROUPINFO("AUTODEC",    5, Compass, _auto_declination, 1),
 #endif
 
     // @Param: MOTCT
@@ -74,7 +62,7 @@ const AP_Param::GroupInfo Compass::var_info[] PROGMEM = {
     // @Description: Set motor interference compensation type to disabled, throttle or current.  Do not change manually.
     // @Values: 0:Disabled,1:Use Throttle,2:Use Current
     // @Increment: 1
-    AP_GROUPINFO("MOTCT",    7, Compass, _motor_comp_type, AP_COMPASS_MOT_COMP_DISABLED),
+    AP_GROUPINFO("MOTCT",    6, Compass, _motor_comp_type, AP_COMPASS_MOT_COMP_DISABLED),
 
     // @Param: MOT_X
     // @DisplayName: Motor interference compensation for body frame X axis
@@ -96,40 +84,40 @@ const AP_Param::GroupInfo Compass::var_info[] PROGMEM = {
     // @Range: -1000 1000
     // @Units: Offset per Amp or at Full Throttle
     // @Increment: 1
-    AP_GROUPINFO("MOT",    8, Compass, _motor_compensation[0], 0),
+    AP_GROUPINFO("MOT",    7, Compass, _motor_compensation[0], 0),
 
     // @Param: ORIENT
     // @DisplayName: Compass orientation
     // @Description: The orientation of the compass relative to the autopilot board. This will default to the right value for each board type, but can be changed if you have an external compass. See the documentation for your external compass for the right value. The correct orientation should give the X axis forward, the Y axis to the right and the Z axis down. So if your aircraft is pointing west it should show a positive value for the Y axis, and a value close to zero for the X axis. On a PX4 or Pixhawk with an external compass the correct value is zero if the compass is correctly oriented. NOTE: This orientation is combined with any AHRS_ORIENTATION setting.
     // @Values: 0:None,1:Yaw45,2:Yaw90,3:Yaw135,4:Yaw180,5:Yaw225,6:Yaw270,7:Yaw315,8:Roll180,9:Roll180Yaw45,10:Roll180Yaw90,11:Roll180Yaw135,12:Pitch180,13:Roll180Yaw225,14:Roll180Yaw270,15:Roll180Yaw315,16:Roll90,17:Roll90Yaw45,18:Roll90Yaw90,19:Roll90Yaw135,20:Roll270,21:Roll270Yaw45,22:Roll270Yaw90,23:Roll270Yaw136,24:Pitch90,25:Pitch270,26:Pitch180Yaw90,27:Pitch180Yaw270,28:Roll90Pitch90,29:Roll180Pitch90,30:Roll270Pitch90,31:Roll90Pitch180,32:Roll270Pitch180,33:Roll90Pitch270,34:Roll180Pitch270,35:Roll270Pitch270,36:Roll90Pitch180Yaw90,37:Roll90Yaw270
-    AP_GROUPINFO("ORIENT", 9, Compass, _orientation, ROTATION_NONE),
+    AP_GROUPINFO("ORIENT", 8, Compass, _orientation, ROTATION_NONE),
   //GAF   AP_GROUPINFO("ORIENT", 8, Compass, _orientation, 8),
     // @Param: EXTERNAL
     // @DisplayName: Compass is attached via an external cable
     // @Description: Configure compass so it is attached externally. This is auto-detected on PX4 and Pixhawk, but must be set correctly on an APM2. Set to 1 if the compass is externally connected. When externally connected the COMPASS_ORIENT option operates independently of the AHRS_ORIENTATION board orientation option
     // @Values: 0:Internal,1:External
     // @User: Advanced
-    AP_GROUPINFO("EXTERNAL", 10, Compass, _external, 0),
+    AP_GROUPINFO("EXTERNAL", 9, Compass, _external, 0),
 
 #if COMPASS_MAX_INSTANCES > 1
 	AP_GROUPINFO("SCLR_XY",    0, Compass, _scale_XY[1], 1.0f),
 	AP_GROUPINFO("SCLR_XZ",    0, Compass, _scale_XZ[1], 1.0f),
-    AP_GROUPINFO("OFS2",    11, Compass, _offset[1], 0),
-    AP_GROUPINFO("MOT2",    12, Compass, _motor_compensation[1], 0),
+    AP_GROUPINFO("OFS2",    10, Compass, _offset[1], 0),
+    AP_GROUPINFO("MOT2",    11, Compass, _motor_compensation[1], 0),
 
     // @Param: PRIMARY
     // @DisplayName: Choose primary compass
     // @Description: If more than one compass is available this selects which compass is the primary. Normally 0=External, 1=Internal. If no External compass is attached this parameter is ignored
     // @Values: 0:FirstCompass,1:SecondCompass
     // @User: Advanced
-    AP_GROUPINFO("PRIMARY", 13, Compass, _primary, 0),
+    AP_GROUPINFO("PRIMARY", 12, Compass, _primary, 0),
 #endif
 
 #if COMPASS_MAX_INSTANCES > 2
 	AP_GROUPINFO("SCLR_XY",    0, Compass, _scale_XY[2], 1.0f),
 	AP_GROUPINFO("SCLR_XZ",    0, Compass, _scale_XZ[2], 1.0f),
-    AP_GROUPINFO("OFS3",    14, Compass, _offset[2], 0),
-    AP_GROUPINFO("MOT3",    15, Compass, _motor_compensation[2], 0),
+    AP_GROUPINFO("OFS3",    13, Compass, _offset[2], 0),
+    AP_GROUPINFO("MOT3",    14, Compass, _motor_compensation[2], 0),
 #endif
 
 #if COMPASS_MAX_INSTANCES > 1
@@ -137,13 +125,13 @@ const AP_Param::GroupInfo Compass::var_info[] PROGMEM = {
     // @DisplayName: Compass device id
     // @Description: Compass device id.  Automatically detected, do not set manually
     // @User: Advanced
-    AP_GROUPINFO("DEV_ID",  16, Compass, _dev_id[0], COMPASS_EXPECTED_DEV_ID),
+    AP_GROUPINFO("DEV_ID",  15, Compass, _dev_id[0], COMPASS_EXPECTED_DEV_ID),
 
     // @Param: DEV_ID2
     // @DisplayName: Compass2 device id
     // @Description: Second compass's device id.  Automatically detected, do not set manually
     // @User: Advanced
-    AP_GROUPINFO("DEV_ID2", 17, Compass, _dev_id[1], COMPASS_EXPECTED_DEV_ID2),
+    AP_GROUPINFO("DEV_ID2", 16, Compass, _dev_id[1], COMPASS_EXPECTED_DEV_ID2),
 #endif
 
 #if COMPASS_MAX_INSTANCES > 2
@@ -151,7 +139,31 @@ const AP_Param::GroupInfo Compass::var_info[] PROGMEM = {
     // @DisplayName: Compass3 device id
     // @Description: Third compass's device id.  Automatically detected, do not set manually
     // @User: Advanced
-    AP_GROUPINFO("DEV_ID3", 18, Compass, _dev_id[2], COMPASS_EXPECTED_DEV_ID3),
+    AP_GROUPINFO("DEV_ID3", 17, Compass, _dev_id[2], COMPASS_EXPECTED_DEV_ID3),
+#endif
+
+    // @Param: SCLR_XY
+    // @DisplayName: Compass scaler on the y axis
+    // @Description: Normalization Scaler for the compass z-axis values to compensate for sensor scale variations
+    // @Range: 0.8 1.2
+    // @Increment: 0.001
+    AP_GROUPINFO("SCLR_XY", 18, Compass, _scale_XY[0], 1.0f),
+
+    // @Param: SCLR_XZ
+    // @DisplayName: Compass scaler on the z axis
+    // @Description: Normalization Scaler for the compass x-axis values to compensate for sensor scale variations
+    // @Range: 0.8 1.2
+    // @Increment: 0.001	
+    AP_GROUPINFO("SCLR_XZ", 19, Compass, _scale_XZ[0], 1.0f),
+
+#if COMPASS_MAX_INSTANCES > 1
+	AP_GROUPINFO("SCLR_XY", 20, Compass, _scale_XY[1], 1.0f),
+	AP_GROUPINFO("SCLR_XZ", 21, Compass, _scale_XZ[1], 1.0f),
+#endif
+
+#if COMPASS_MAX_INSTANCES > 2
+	AP_GROUPINFO("SCLR_XY", 22, Compass, _scale_XY[2], 1.0f),
+	AP_GROUPINFO("SCLR_XZ", 23, Compass, _scale_XZ[2], 1.0f),
 #endif
 
     AP_GROUPEND

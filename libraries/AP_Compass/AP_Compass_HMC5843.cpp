@@ -349,10 +349,6 @@ bool AP_Compass_HMC5843::read()
 	_field[0].x = _mag_x_accum * calibration[0] / _accum_count;
 	_field[0].y = _mag_y_accum * calibration[1] / _accum_count;
 	_field[0].z = _mag_z_accum * calibration[2] / _accum_count;
-	  // here i am bypassing the strap calibration
-	//_field[0].x = _mag_x_accum  / _accum_count;
-	//_field[0].y = _mag_y_accum  / _accum_count;
-	//_field[0].z = _mag_z_accum  / _accum_count;	
 	
 	_accum_count = 0;
 	_mag_x_accum = _mag_y_accum = _mag_z_accum = 0;

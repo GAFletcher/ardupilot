@@ -131,7 +131,21 @@ void ToshibaLED::update_colours(void)
         // exit so no other status modify this pattern
         return;
     }
-
+	
+	// compass calibration
+	if (AP_Notify::flags.compass_cal) {
+		if (AP_Notify::flags.compass_cal == 1) {
+					
+		}
+		if (AP_Notify::flags.compass_cal == 2) {
+			
+		}
+		if (AP_Notify::flags.compass_cal == 3) {
+						
+		}		
+		return;
+	}
+		
     // failsafe patterns for radio and battery - single flash yellow
     // failsafe pattern for gps - flashing blue and yellow
     if (AP_Notify::flags.failsafe_radio || AP_Notify::flags.failsafe_battery || AP_Notify::flags.failsafe_gps || AP_Notify::flags.gps_glitching) {
